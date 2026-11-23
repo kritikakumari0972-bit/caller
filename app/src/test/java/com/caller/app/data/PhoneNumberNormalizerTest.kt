@@ -22,6 +22,6 @@ class PhoneNumberNormalizerTest {
 
     @Test
     fun countsOnlyDigitsForBasicValidation() {
-        assertEquals(10, PhoneNumberNormalizer.digitCount("+91 98765-43210"))
+        assertEquals(12, PhoneNumberNormalizer.digitCount("+91 98765-43210"))
     }
 }
