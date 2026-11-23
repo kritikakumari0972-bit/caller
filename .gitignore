@@ -1,0 +1,17 @@
+# Gradle
+.gradle/
+**/build/
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+.DS_Store
+
+# Signing material
+*.jks
+*.keystore
+keystore.properties
+
+# Logs
+*.log
