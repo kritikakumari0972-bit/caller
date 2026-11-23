@@ -16,7 +16,7 @@ A privacy-first Android caller protection app built with Kotlin and Jetpack Comp
 
 ## Requirements
 - Android Studio and JDK 17.
-- Android SDK Platform 37 and Build Tools 36.0.0.
+- Android SDK Platform 36 and Build Tools 36.0.0.
 - Android Gradle Plugin 9.5.0 and Gradle 9.6.0.
 - Minimum Android version: 8.0 / API 26.
 - Automatic call screening requires Android 10 / API 29+ and the user's approval.
