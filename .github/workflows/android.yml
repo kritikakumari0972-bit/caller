@@ -30,7 +30,12 @@ jobs:
           packages: platform-tools
 
       - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+        run: |
+          sdkmanager --channel=3 "platforms;android-37.0" "build-tools;37.0.0" "platform-tools"
+          # AGP resolves compileSdk 37 using the un-suffixed platform directory.
+          if [ -d "$ANDROID_HOME/platforms/android-37.0" ] && [ ! -e "$ANDROID_HOME/platforms/android-37" ]; then
+            ln -s android-37.0 "$ANDROID_HOME/platforms/android-37"
+          fi
 
       - name: Run unit tests and assemble debug APK
         run: ./gradlew :app:testDebugUnitTest :app:assembleDebug

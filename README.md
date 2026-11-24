@@ -2,11 +2,14 @@
 
 A privacy-first Android caller protection app built with Kotlin and Jetpack Compose.
 
-> **Current milestone: v0.2.0 — local contacts directory + local call blocklist.** Caller is under active development and is not yet a complete Truecaller replacement.
+> **Current milestone: v0.3.0 — on-device contact caller matching.** Caller is under active development and is not yet a complete Truecaller replacement.
 
 ## Implemented
 - Native Compose app with Home, Contacts, Blocklist, and Settings tabs.
 - Local phone-contact directory with name and phone-number search.
+- Incoming-number matching through Android's local Contacts Provider when Contacts permission is granted.
+- One private latest-match record that the user can clear.
+- Optional notification when an incoming number matches a saved contact (Android 13+ notification permission required).
 - Contact access is requested only when the user taps **Allow contact access**.
 - Contact rows are read from Android's Contacts Provider and held in memory for the active screen.
 - No contact upload, call-log upload, SMS access, analytics SDK, or remote phone-number lookup.
@@ -16,7 +19,7 @@ A privacy-first Android caller protection app built with Kotlin and Jetpack Comp
 
 ## Requirements
 - Android Studio and JDK 17.
-- Android SDK Platform 36 and Build Tools 36.0.0.
+- Android SDK Platform 37.0 and Build Tools 37.0.0.
 - Android Gradle Plugin 9.5.0 and Gradle 9.6.0.
 - Minimum Android version: 8.0 / API 26.
 - Automatic call screening requires Android 10 / API 29+ and the user's approval.
@@ -36,7 +39,17 @@ A GitHub Actions workflow also runs JVM unit tests and assembles the debug APK o
 3. Approve or deny the Android permission prompt.
 4. Search saved contact names or phone-number digits.
 
-The app does not read the device contacts before permission is granted. Contact results are not sent to a server. Revoking the permission in Android settings prevents further reads.
+The app does not read the device contacts before permission is granted. Contact results are not sent to a server. Revoking the permission in Android settings prevents further reads. During incoming call screening, Caller checks the incoming number against the local Contacts Provider. A match is stored as the single latest result and shown in the Caller ID tab. On Android 13+, the user can separately grant notification permission for optional match alerts.
+
+## Incoming caller matching
+
+1. Grant Contacts permission from the Contacts tab.
+2. On Android 10+, select Caller as the call-screening app.
+3. When an incoming number matches a saved contact, Caller stores the name and number as the latest local match.
+4. Open the Caller ID tab to see the result or clear it.
+5. On Android 13+, optionally enable notifications in Settings.
+
+Contact matches are informational only; they never cause a call to be rejected. This milestone does not draw over Android's system incoming-call interface.
 
 ## Enable call protection
 1. Install and open Caller on Android 10+.
@@ -51,6 +64,10 @@ Unknown numbers not on the blocklist are allowed. Contact search is currently an
 - `MainActivity.kt`: activity and Android role request.
 - `CallerApp.kt`: Compose shell and tab navigation.
 - `ContactsScreen.kt`: permission-gated contact search UI.
+- `CallerIdScreen.kt`: latest matched caller detail and clear action.
+- `data/ContactCallerLookup.kt`: single-number local Contacts Provider lookup.
+- `data/LatestCallerMatchStore.kt`: private latest-match storage.
+- `telephony/CallerMatchNotifier.kt`: optional Android match notification.
 - `data/ContactsRepository.kt`: local Contacts Provider reader.
 - `data/PhoneNumberNormalizer.kt`: conservative number normalization.
 - `data/BlockedNumberStore.kt`: local private blocklist storage.
@@ -59,11 +76,12 @@ Unknown numbers not on the blocklist are allowed. Contact search is currently an
 
 ## Roadmap
 1. **Foundation:** app shell, local blocklist, Android screening role.
-2. **Current:** local contact directory and search.
-3. **Caller identity:** verified business/public-number lookup with clear source and confidence labels.
-4. **Spam intelligence:** transparent spam reports and user-controlled community submissions.
-5. **Smart dialer:** optional default-dialer experience following Android role requirements.
-6. **Release hardening:** accessibility, localization, tests, privacy review, and Play policy checks.
+2. **Local contacts:** contact directory and search.
+3. **Current:** incoming caller matching against on-device contacts, optional match notification, and clearable latest-match detail.
+4. **Caller identity:** verified business/public-number lookup with clear source and confidence labels.
+5. **Spam intelligence:** transparent spam reports and user-controlled community submissions.
+6. **Smart dialer:** optional default-dialer experience following Android role requirements.
+7. **Release hardening:** accessibility, localization, tests, privacy review, and Play policy checks.
 
 ## Privacy principles
 - Keep user-created blocklist entries on-device.

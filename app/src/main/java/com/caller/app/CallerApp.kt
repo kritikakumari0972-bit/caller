@@ -19,6 +19,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Call
@@ -28,6 +33,7 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -71,6 +77,7 @@ import com.caller.app.ui.theme.CallerText
 private enum class CallerTab(val title: String) {
     HOME("Home"),
     CONTACTS("Contacts"),
+    CALLER_ID("Caller ID"),
     BLOCKLIST("Blocklist"),
     SETTINGS("Settings")
 }
@@ -93,6 +100,7 @@ fun CallerApp(
                     val icon = when (tab) {
                         CallerTab.HOME -> Icons.Outlined.Home
                         CallerTab.CONTACTS -> Icons.Outlined.People
+                        CallerTab.CALLER_ID -> Icons.Outlined.VerifiedUser
                         CallerTab.BLOCKLIST -> Icons.Outlined.Block
                         CallerTab.SETTINGS -> Icons.Outlined.Settings
                     }
@@ -115,6 +123,9 @@ fun CallerApp(
                 onOpenBlocklist = { selectedTab = CallerTab.BLOCKLIST.name }
             )
             CallerTab.CONTACTS -> ContactsScreen(
+                modifier = Modifier.padding(innerPadding)
+            )
+            CallerTab.CALLER_ID -> CallerIdScreen(
                 modifier = Modifier.padding(innerPadding)
             )
             CallerTab.BLOCKLIST -> BlocklistScreen(
@@ -466,6 +477,20 @@ private fun SettingsScreen(
     screeningRoleHeld: Boolean,
     onEnableScreening: () -> Unit
 ) {
+    val context = LocalContext.current
+    var notificationsAllowed by remember {
+        mutableStateOf(
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+        )
+    }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        notificationsAllowed = granted
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -495,6 +520,30 @@ private fun SettingsScreen(
             }
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationsAllowed) {
+            OutlinedButton(
+                onClick = {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Text("Enable caller match notifications")
+            }
+            Text(
+                "Optional: show an alert when an incoming number matches a saved contact.",
+                fontSize = 12.sp,
+                color = CallerMuted,
+                modifier = Modifier.padding(top = 6.dp)
+            )
+        } else {
+            Text(
+                "Caller match notifications: ${if (notificationsAllowed) "enabled" else "not available on this Android version"}",
+                fontSize = 12.sp,
+                color = CallerMuted
+            )
+        }
+
         Spacer(Modifier.height(18.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -509,6 +558,7 @@ private fun SettingsScreen(
                 }
                 PrivacyPoint("Your blocklist is stored locally in this app.")
                 PrivacyPoint("Contacts are read only after you grant permission and stay on this phone.")
+                PrivacyPoint("The latest matched caller is stored locally and can be cleared in Caller ID.")
                 PrivacyPoint("This build does not upload contacts or call history.")
                 PrivacyPoint("No remote caller lookup is active in this milestone.")
                 PrivacyPoint("Call screening starts only after you grant Android's role.")
@@ -524,7 +574,7 @@ private fun SettingsScreen(
             Column(Modifier.padding(18.dp)) {
                 Text("About Caller", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = CallerText)
                 Spacer(Modifier.height(5.dp))
-                Text("Version 0.2.0 · Local contacts", fontSize = 13.sp, color = CallerMuted)
+                Text("Version 0.3.0 · Contact caller matching", fontSize = 13.sp, color = CallerMuted)
                 Text(
                     "Caller does not automatically classify unknown numbers as spam. Only your explicit blocklist is used for rejection.",
                     fontSize = 12.sp,
