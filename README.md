@@ -7,7 +7,7 @@ A privacy-first Android caller protection app built with Kotlin and Jetpack Comp
 ## Implemented
 - Native Compose app with Home, Contacts, Blocklist, and Settings tabs.
 - Local phone-contact directory with name and phone-number search.
-- Incoming-number matching through Android's local Contacts Provider when Contacts permission is granted.
+- Incoming-number matching through Android's local Contacts Provider on Android 11+ when Contacts permission is granted and Caller is the selected call-screening app.
 - One private latest-match record that the user can clear.
 - Optional notification when an incoming number matches a saved contact (Android 13+ notification permission required).
 - Contact access is requested only when the user taps **Allow contact access**.
@@ -45,7 +45,7 @@ The app does not read the device contacts before permission is granted. Contact 
 
 1. Grant Contacts permission from the Contacts tab.
 2. On Android 10+, select Caller as the call-screening app.
-3. When an incoming number matches a saved contact, Caller stores the name and number as the latest local match.
+3. On Android 11+, when Caller holds the call-screening role and Contacts permission, Android can deliver contact calls to the service. When an incoming number matches a saved contact, Caller stores the name and number as the latest local match. Android 10's call-screening callback is limited to numbers that are not already in the user's contacts.
 4. Open the Caller ID tab to see the result or clear it.
 5. On Android 13+, optionally enable notifications in Settings.
 
@@ -91,4 +91,4 @@ Unknown numbers not on the blocklist are allowed. Contact search is currently an
 - Explain data sources and any future network lookup clearly.
 
 ## Limitations
-Arbitrary unknown-number identification requires a reliable, lawful data source and may require network access. This milestone searches only the user's saved contacts; it does not contain an external reverse-lookup database. Android and device-maker call-screening behavior also varies, so test on real devices before release.
+Arbitrary unknown-number identification requires a reliable, lawful data source and may require network access. This milestone matches incoming numbers to the user's own saved contacts (system contact-call delivery requires Android 11+); it does not contain an external reverse-lookup database. Android and device-maker call-screening behavior also varies, so test on real devices before release.
