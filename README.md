@@ -2,10 +2,10 @@
 
 A privacy-first Android caller protection app built with Kotlin and Jetpack Compose.
 
-> **Current milestone: v0.3.0 — on-device contact caller matching.** Caller is under active development and is not yet a complete Truecaller replacement.
+> **Current milestone: v0.4.0 — local number reports and reputation notes.** Caller is under active development and is not yet a complete Truecaller replacement.
 
 ## Implemented
-- Native Compose app with Home, Contacts, Blocklist, and Settings tabs.
+- Native Compose app with Home, Contacts, Caller ID, Reports, Blocklist, and Settings tabs.
 - Local phone-contact directory with name and phone-number search.
 - Incoming-number matching through Android's local Contacts Provider on Android 11+ when Contacts permission is granted and Caller is the selected call-screening app.
 - One private latest-match record that the user can clear.
@@ -16,6 +16,9 @@ A privacy-first Android caller protection app built with Kotlin and Jetpack Comp
 - Add and remove numbers from a private, on-device blocklist.
 - Android Call Screening service and user-controlled role request.
 - Incoming calls matching an explicitly blocked number can be rejected when Caller holds Android's screening role.
+- User-authored number reports with categories for suspected scam, telemarketing, robocalls, repeated unwanted calls, and other unwanted calls.
+- Local number summary showing reports saved on this device, with no fabricated global risk score.
+- Delete individual reports and explicitly add a reported number to the blocklist.
 
 ## Requirements
 - Android Studio and JDK 17.
@@ -51,6 +54,16 @@ The app does not read the device contacts before permission is granted. Contact 
 
 Contact matches are informational only; they never cause a call to be rejected. This milestone does not draw over Android's system incoming-call interface.
 
+## Local number reports
+
+1. Open **Reports**.
+2. Enter a phone number and choose a report category.
+3. Optionally add a short note, then save.
+4. Review or delete saved reports in the same screen.
+5. Use the block icon on a report only when you personally want to block that number.
+
+Reports are private to this installation and are not uploaded or shared. A report is not proof of fraud. The number summary says only that reports exist on this device; it does not calculate a global reputation score or automatically reject calls. A future shared community system would require a separate opt-in backend, moderation, abuse controls, and transparent data handling.
+
 ## Enable call protection
 1. Install and open Caller on Android 10+.
 2. Tap **Enable call protection** on Home.
@@ -65,6 +78,9 @@ Unknown numbers not on the blocklist are allowed. Contact search is currently an
 - `CallerApp.kt`: Compose shell and tab navigation.
 - `ContactsScreen.kt`: permission-gated contact search UI.
 - `CallerIdScreen.kt`: latest matched caller detail and clear action.
+- `SpamReportsScreen.kt`: local spam-report entry, report list, and explicit block action.
+- `data/NumberReport.kt`: report categories and conservative local reputation summary.
+- `data/NumberReportsStore.kt`: private on-device report storage.
 - `data/ContactCallerLookup.kt`: single-number local Contacts Provider lookup.
 - `data/LatestCallerMatchStore.kt`: private latest-match storage.
 - `telephony/CallerMatchNotifier.kt`: optional Android match notification.
@@ -77,11 +93,12 @@ Unknown numbers not on the blocklist are allowed. Contact search is currently an
 ## Roadmap
 1. **Foundation:** app shell, local blocklist, Android screening role.
 2. **Local contacts:** contact directory and search.
-3. **Current:** incoming caller matching against on-device contacts, optional match notification, and clearable latest-match detail.
-4. **Caller identity:** verified business/public-number lookup with clear source and confidence labels.
-5. **Spam intelligence:** transparent spam reports and user-controlled community submissions.
-6. **Smart dialer:** optional default-dialer experience following Android role requirements.
-7. **Release hardening:** accessibility, localization, tests, privacy review, and Play policy checks.
+3. **Incoming caller matching:** saved-contact matches, optional notification, and a clearable latest-match detail.
+4. **Current:** local spam reports, conservative number summaries, and user-controlled blocking.
+5. **Caller identity:** verified business/public-number lookup with clear source and confidence labels.
+6. **Community intelligence:** a future opt-in service with moderation, abuse prevention, and verified aggregation.
+7. **Smart dialer:** optional default-dialer experience following Android role requirements.
+8. **Release hardening:** accessibility, localization, tests, privacy review, and Play policy checks.
 
 ## Privacy principles
 - Keep user-created blocklist entries on-device.
@@ -91,4 +108,4 @@ Unknown numbers not on the blocklist are allowed. Contact search is currently an
 - Explain data sources and any future network lookup clearly.
 
 ## Limitations
-Arbitrary unknown-number identification requires a reliable, lawful data source and may require network access. This milestone matches incoming numbers to the user's own saved contacts (system contact-call delivery requires Android 11+); it does not contain an external reverse-lookup database. Android and device-maker call-screening behavior also varies, so test on real devices before release.
+Arbitrary unknown-number identification requires a reliable, lawful data source and may require network access. Caller matches incoming numbers to the user's own saved contacts (system contact-call delivery requires Android 11+). Local number reports only reflect entries made on this device. There is no external reverse-lookup database or shared community-report backend yet. Android and device-maker call-screening behavior also varies, so test on real devices before release.

@@ -34,6 +34,7 @@ import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.VerifiedUser
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -78,6 +79,7 @@ private enum class CallerTab(val title: String) {
     HOME("Home"),
     CONTACTS("Contacts"),
     CALLER_ID("Caller ID"),
+    REPORTS("Reports"),
     BLOCKLIST("Blocklist"),
     SETTINGS("Settings")
 }
@@ -101,6 +103,7 @@ fun CallerApp(
                         CallerTab.HOME -> Icons.Outlined.Home
                         CallerTab.CONTACTS -> Icons.Outlined.People
                         CallerTab.CALLER_ID -> Icons.Outlined.VerifiedUser
+                        CallerTab.REPORTS -> Icons.Outlined.Flag
                         CallerTab.BLOCKLIST -> Icons.Outlined.Block
                         CallerTab.SETTINGS -> Icons.Outlined.Settings
                     }
@@ -126,6 +129,9 @@ fun CallerApp(
                 modifier = Modifier.padding(innerPadding)
             )
             CallerTab.CALLER_ID -> CallerIdScreen(
+                modifier = Modifier.padding(innerPadding)
+            )
+            CallerTab.REPORTS -> SpamReportsScreen(
                 modifier = Modifier.padding(innerPadding)
             )
             CallerTab.BLOCKLIST -> BlocklistScreen(
@@ -304,7 +310,7 @@ private fun HomeScreen(
             Column(Modifier.padding(18.dp)) {
                 Text("Coming next", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = CallerText)
                 RoadmapLine("Verified business caller lookup")
-                RoadmapLine("Spam reports with confidence indicators")
+                RoadmapLine("Local spam reports and number notes")
                 RoadmapLine("Smart dialer and recent-call tools")
                 RoadmapLine("Optional, transparent community intelligence")
             }
@@ -559,6 +565,7 @@ private fun SettingsScreen(
                 PrivacyPoint("Your blocklist is stored locally in this app.")
                 PrivacyPoint("Contacts are read only after you grant permission and stay on this phone.")
                 PrivacyPoint("The latest matched caller is stored locally and can be cleared in Caller ID.")
+                PrivacyPoint("Spam reports are personal notes stored only on this device.")
                 PrivacyPoint("This build does not upload contacts or call history.")
                 PrivacyPoint("No remote caller lookup is active in this milestone.")
                 PrivacyPoint("Call screening starts only after you grant Android's role.")
@@ -574,7 +581,7 @@ private fun SettingsScreen(
             Column(Modifier.padding(18.dp)) {
                 Text("About Caller", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = CallerText)
                 Spacer(Modifier.height(5.dp))
-                Text("Version 0.3.0 · Contact caller matching", fontSize = 13.sp, color = CallerMuted)
+                Text("Version 0.4.0 · Local number reports", fontSize = 13.sp, color = CallerMuted)
                 Text(
                     "Caller does not automatically classify unknown numbers as spam. Only your explicit blocklist is used for rejection.",
                     fontSize = 12.sp,
