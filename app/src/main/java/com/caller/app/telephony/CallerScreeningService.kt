@@ -4,6 +4,7 @@ import android.os.Build
 import android.telecom.Call
 import android.telecom.CallScreeningService
 import com.caller.app.data.BlockedNumberStore
+import com.caller.app.data.BusinessDirectoryStore
 import com.caller.app.data.ContactCallerLookup
 import com.caller.app.data.LatestCallerMatch
 import com.caller.app.data.LatestCallerMatchStore
@@ -40,18 +41,40 @@ class CallerScreeningService : CallScreeningService() {
         if (isIncoming && !shouldBlock && incomingNumber.isNotBlank()) {
             val appContext = applicationContext
             contactLookupExecutor.execute {
-                runCatching {
+                val contactMatch = runCatching {
                     ContactCallerLookup(appContext).findContact(incomingNumber)
-                }.getOrNull()?.let { match ->
+                }.getOrNull()
+
+                if (contactMatch != null) {
                     runCatching {
                         LatestCallerMatchStore(appContext).save(
                             LatestCallerMatch(
-                                displayName = match.displayName,
-                                phoneNumber = match.phoneNumber,
-                                matchedAtMillis = System.currentTimeMillis()
+                                displayName = contactMatch.displayName,
+                                phoneNumber = contactMatch.phoneNumber,
+                                matchedAtMillis = System.currentTimeMillis(),
+                                sourceLabel = "Matched from saved contacts"
                             )
                         )
-                        CallerMatchNotifier.showMatch(appContext, match)
+                        CallerMatchNotifier.showMatch(appContext, contactMatch)
+                    }
+                } else {
+                    // Contact names take priority. Business entries are a separate,
+                    // user-managed local source and are never treated as verified.
+                    val business = runCatching {
+                        BusinessDirectoryStore(appContext).findByNumber(incomingNumber)
+                    }.getOrNull()
+                    business?.let { entry ->
+                        runCatching {
+                            LatestCallerMatchStore(appContext).save(
+                                LatestCallerMatch(
+                                    displayName = entry.name,
+                                    phoneNumber = entry.normalizedNumber,
+                                    matchedAtMillis = System.currentTimeMillis(),
+                                    sourceLabel = "Unverified local business entry",
+                                    sourceNote = entry.evidenceDescription
+                                )
+                            )
+                        }
                     }
                 }
             }

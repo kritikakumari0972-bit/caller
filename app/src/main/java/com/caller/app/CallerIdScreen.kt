@@ -94,7 +94,7 @@ fun CallerIdScreen(modifier: Modifier = Modifier) {
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text("Caller ID", fontSize = 25.sp, fontWeight = FontWeight.Bold, color = CallerText)
-                Text("Saved-contact matching", fontSize = 12.sp, color = CallerMuted)
+                Text("Contacts + local business entries", fontSize = 12.sp, color = CallerMuted)
             }
             IconButton(onClick = ::refresh) {
                 Icon(Icons.Outlined.Refresh, contentDescription = "Refresh latest match")
@@ -119,7 +119,7 @@ fun CallerIdScreen(modifier: Modifier = Modifier) {
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    "Caller checks incoming numbers against contacts saved on this phone. Matches stay local. This is not a public reverse-number database.",
+                    "Caller checks exact incoming numbers against contacts and your own local business directory. Records stay on this phone; there is no public reverse-number lookup.",
                     fontSize = 12.sp,
                     lineHeight = 17.sp,
                     color = CallerMuted
@@ -129,7 +129,7 @@ fun CallerIdScreen(modifier: Modifier = Modifier) {
 
         Spacer(Modifier.height(18.dp))
         Text(
-            "Latest identified caller",
+            "Latest matched caller",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = CallerText
@@ -159,7 +159,7 @@ fun CallerIdScreen(modifier: Modifier = Modifier) {
                         color = CallerText
                     )
                     Text(
-                        "When an incoming number matches one of your saved contacts, its details will appear here.",
+                        "When an incoming number matches a saved contact or a local business entry, its details will appear here.",
                         fontSize = 12.sp,
                         lineHeight = 18.sp,
                         color = CallerMuted,
@@ -198,7 +198,10 @@ fun CallerIdScreen(modifier: Modifier = Modifier) {
                                 fontWeight = FontWeight.Bold,
                                 color = CallerText
                             )
-                            Text("Matched from saved contacts", fontSize = 12.sp, color = CallerGreen)
+                            Text(match.sourceLabel, fontSize = 12.sp, color = if (match.sourceLabel.contains("Unverified")) CallerMuted else CallerGreen)
+                            match.sourceNote?.let { note ->
+                                Text(note, fontSize = 11.sp, lineHeight = 15.sp, color = CallerMuted, modifier = Modifier.padding(top = 4.dp))
+                            }
                         }
                     }
                     Spacer(Modifier.height(18.dp))
@@ -243,7 +246,7 @@ fun CallerIdScreen(modifier: Modifier = Modifier) {
             colors = CardDefaults.cardColors(containerColor = Color(0xFFEDEBFF))
         ) {
             Text(
-                "Only a contact match is shown as identified. Numbers absent from your contacts remain unknown; Caller does not guess a person's identity.",
+                "Contact matches come from your address book. Business matches come only from entries you added and are always unverified; an exact number match does not prove who controls that number.",
                 fontSize = 12.sp,
                 lineHeight = 18.sp,
                 color = CallerText,

@@ -2,7 +2,7 @@
 
 A privacy-first Android caller protection app built with Kotlin and Jetpack Compose.
 
-> **Current milestone: v0.4.0 — local number reports and reputation notes.** Caller is under active development and is not yet a complete Truecaller replacement.
+> **Current milestone: v0.5.0 — user-managed local business directory and caller-source transparency.** Caller is under active development and is not yet a complete Truecaller replacement.
 
 ## Implemented
 - Native Compose app with Home, Contacts, Caller ID, Reports, Blocklist, and Settings tabs.
@@ -19,6 +19,10 @@ A privacy-first Android caller protection app built with Kotlin and Jetpack Comp
 - User-authored number reports with categories for suspected scam, telemarketing, robocalls, repeated unwanted calls, and other unwanted calls.
 - Local number summary showing reports saved on this device, with no fabricated global risk score.
 - Delete individual reports and explicitly add a reported number to the blocklist.
+- A user-managed business directory with exact phone-number matching during call screening.
+- Optional category, website, and source-reference notes for local business entries.
+- Business matches are always labelled unverified; source notes are not independently checked.
+- The latest caller record now displays whether it came from saved contacts or an unverified local business entry.
 
 ## Requirements
 - Android Studio and JDK 17.
@@ -64,6 +68,18 @@ Contact matches are informational only; they never cause a call to be rejected. 
 
 Reports are private to this installation and are not uploaded or shared. A report is not proof of fraud. The number summary says only that reports exist on this device; it does not calculate a global reputation score or automatically reject calls. A future shared community system would require a separate opt-in backend, moderation, abuse controls, and transparent data handling.
 
+## Local business directory
+
+1. Open **Biz**.
+2. Enter a business name and phone number. Category, website, and a source/reference note are optional.
+3. Save the entry. It is stored only in this app's private on-device preferences.
+4. Caller checks exact normalized phone-number matches after checking saved contacts.
+5. Delete entries from the same screen whenever you want.
+
+**Important:** Every business entry is unverified. Adding a URL or source note only records what you supplied; Caller does not fetch the URL, validate the source, confirm ownership, or award a verified badge. If a screened incoming number matches an entry, Caller ID says it is an unverified local business entry. Contact matches take priority. Business matches do not trigger automatic blocking.
+
+There are no preloaded sample businesses, no remote directory, and no shared caller database in this milestone.
+
 ## Enable call protection
 1. Install and open Caller on Android 10+.
 2. Tap **Enable call protection** on Home.
@@ -79,6 +95,9 @@ Unknown numbers not on the blocklist are allowed. Contact search is currently an
 - `ContactsScreen.kt`: permission-gated contact search UI.
 - `CallerIdScreen.kt`: latest matched caller detail and clear action.
 - `SpamReportsScreen.kt`: local spam-report entry, report list, and explicit block action.
+- `BusinessDirectoryScreen.kt`: user-managed business directory with unverified source labels.
+- `data/BusinessDirectoryStore.kt`: private local business entries.
+- `data/BusinessProfile.kt`: business entry model and exact-match lookup engine.
 - `data/NumberReport.kt`: report categories and conservative local reputation summary.
 - `data/NumberReportsStore.kt`: private on-device report storage.
 - `data/ContactCallerLookup.kt`: single-number local Contacts Provider lookup.
@@ -94,11 +113,11 @@ Unknown numbers not on the blocklist are allowed. Contact search is currently an
 1. **Foundation:** app shell, local blocklist, Android screening role.
 2. **Local contacts:** contact directory and search.
 3. **Incoming caller matching:** saved-contact matches, optional notification, and a clearable latest-match detail.
-4. **Current:** local spam reports, conservative number summaries, and user-controlled blocking.
-5. **Caller identity:** verified business/public-number lookup with clear source and confidence labels.
-6. **Community intelligence:** a future opt-in service with moderation, abuse prevention, and verified aggregation.
-7. **Smart dialer:** optional default-dialer experience following Android role requirements.
-8. **Release hardening:** accessibility, localization, tests, privacy review, and Play policy checks.
+4. **Local spam reports:** conservative number summaries and user-controlled blocking.
+5. **Current:** user-managed business entries, exact-number matching, and unverified source transparency.
+6. **Future caller identity:** a lawful external business source would need independent validation, freshness checks, and transparent attribution.
+7. **Community intelligence:** a future opt-in service with moderation, abuse prevention, and verified aggregation.
+8. **Smart dialer and release hardening:** optional default-dialer experience, accessibility, localization, tests, privacy review, and Play policy checks.
 
 ## Privacy principles
 - Keep user-created blocklist entries on-device.
@@ -108,4 +127,4 @@ Unknown numbers not on the blocklist are allowed. Contact search is currently an
 - Explain data sources and any future network lookup clearly.
 
 ## Limitations
-Arbitrary unknown-number identification requires a reliable, lawful data source and may require network access. Caller matches incoming numbers to the user's own saved contacts (system contact-call delivery requires Android 11+). Local number reports only reflect entries made on this device. There is no external reverse-lookup database or shared community-report backend yet. Android and device-maker call-screening behavior also varies, so test on real devices before release.
+Arbitrary unknown-number identification requires a reliable, lawful data source and may require network access. Caller matches incoming numbers to the user's own saved contacts (system contact-call delivery requires Android 11+). Local number reports only reflect entries made on this device. There is no external reverse-lookup database or shared community-report backend yet. Business entries are user-managed, unverified local records; Caller does not confirm business ownership or independently validate source notes. Android and device-maker call-screening behavior also varies, so test on real devices before release.

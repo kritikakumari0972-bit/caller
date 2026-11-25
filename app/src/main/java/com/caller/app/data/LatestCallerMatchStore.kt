@@ -5,11 +5,13 @@ import android.content.Context
 data class LatestCallerMatch(
     val displayName: String,
     val phoneNumber: String,
-    val matchedAtMillis: Long
+    val matchedAtMillis: Long,
+    val sourceLabel: String = "Matched from saved contacts",
+    val sourceNote: String? = null
 )
 
 /**
- * Stores only the most recent contact match, privately on this device.
+ * Stores only the most recent caller identity match, privately on this device.
  * It is intentionally not a general call log and can be cleared by the user.
  */
 class LatestCallerMatchStore(context: Context) {
@@ -24,6 +26,8 @@ class LatestCallerMatchStore(context: Context) {
             .putString(KEY_NAME, match.displayName)
             .putString(KEY_NUMBER, match.phoneNumber)
             .putLong(KEY_MATCHED_AT, match.matchedAtMillis)
+            .putString(KEY_SOURCE_LABEL, match.sourceLabel)
+            .putString(KEY_SOURCE_NOTE, match.sourceNote)
             .apply()
     }
 
@@ -37,7 +41,9 @@ class LatestCallerMatchStore(context: Context) {
         return LatestCallerMatch(
             displayName = name,
             phoneNumber = number,
-            matchedAtMillis = time
+            matchedAtMillis = time,
+            sourceLabel = preferences.getString(KEY_SOURCE_LABEL, "Matched from saved contacts").orEmpty(),
+            sourceNote = preferences.getString(KEY_SOURCE_NOTE, null)
         )
     }
 
@@ -50,5 +56,7 @@ class LatestCallerMatchStore(context: Context) {
         const val KEY_NAME = "display_name"
         const val KEY_NUMBER = "phone_number"
         const val KEY_MATCHED_AT = "matched_at_millis"
+        const val KEY_SOURCE_LABEL = "source_label"
+        const val KEY_SOURCE_NOTE = "source_note"
     }
 }

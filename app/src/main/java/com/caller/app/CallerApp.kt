@@ -26,6 +26,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Block
+import androidx.compose.material.icons.outlined.Business
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Home
@@ -79,6 +80,7 @@ private enum class CallerTab(val title: String) {
     HOME("Home"),
     CONTACTS("Contacts"),
     CALLER_ID("Caller ID"),
+    BUSINESSES("Biz"),
     REPORTS("Reports"),
     BLOCKLIST("Blocklist"),
     SETTINGS("Settings")
@@ -103,6 +105,7 @@ fun CallerApp(
                         CallerTab.HOME -> Icons.Outlined.Home
                         CallerTab.CONTACTS -> Icons.Outlined.People
                         CallerTab.CALLER_ID -> Icons.Outlined.VerifiedUser
+                        CallerTab.BUSINESSES -> Icons.Outlined.Business
                         CallerTab.REPORTS -> Icons.Outlined.Flag
                         CallerTab.BLOCKLIST -> Icons.Outlined.Block
                         CallerTab.SETTINGS -> Icons.Outlined.Settings
@@ -129,6 +132,9 @@ fun CallerApp(
                 modifier = Modifier.padding(innerPadding)
             )
             CallerTab.CALLER_ID -> CallerIdScreen(
+                modifier = Modifier.padding(innerPadding)
+            )
+            CallerTab.BUSINESSES -> BusinessDirectoryScreen(
                 modifier = Modifier.padding(innerPadding)
             )
             CallerTab.REPORTS -> SpamReportsScreen(
@@ -308,11 +314,11 @@ private fun HomeScreen(
             colors = CardDefaults.cardColors(containerColor = CallerSurface)
         ) {
             Column(Modifier.padding(18.dp)) {
-                Text("Coming next", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = CallerText)
-                RoadmapLine("Verified business caller lookup")
-                RoadmapLine("Local spam reports and number notes")
-                RoadmapLine("Smart dialer and recent-call tools")
-                RoadmapLine("Optional, transparent community intelligence")
+                Text("Caller ID sources", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = CallerText)
+                RoadmapLine("Saved contacts on this phone")
+                RoadmapLine("Your unverified local business directory")
+                RoadmapLine("Local reports and explicit blocking")
+                RoadmapLine("No shared or global lookup in this version")
             }
         }
         Spacer(Modifier.height(14.dp))
@@ -566,8 +572,9 @@ private fun SettingsScreen(
                 PrivacyPoint("Contacts are read only after you grant permission and stay on this phone.")
                 PrivacyPoint("The latest matched caller is stored locally and can be cleared in Caller ID.")
                 PrivacyPoint("Spam reports are personal notes stored only on this device.")
+                PrivacyPoint("Business entries are user-entered, unverified records stored only on this device.")
                 PrivacyPoint("This build does not upload contacts or call history.")
-                PrivacyPoint("No remote caller lookup is active in this milestone.")
+                PrivacyPoint("No remote caller lookup or shared directory is active in this version.")
                 PrivacyPoint("Call screening starts only after you grant Android's role.")
             }
         }
@@ -581,7 +588,7 @@ private fun SettingsScreen(
             Column(Modifier.padding(18.dp)) {
                 Text("About Caller", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = CallerText)
                 Spacer(Modifier.height(5.dp))
-                Text("Version 0.4.0 · Local number reports", fontSize = 13.sp, color = CallerMuted)
+                Text("Version 0.5.0 · Local business directory", fontSize = 13.sp, color = CallerMuted)
                 Text(
                     "Caller does not automatically classify unknown numbers as spam. Only your explicit blocklist is used for rejection.",
                     fontSize = 12.sp,
